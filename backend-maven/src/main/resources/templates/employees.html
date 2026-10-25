@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Directory - Codec Technologies EMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="main-container">
+        <!-- Notification Banners -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible" role="alert">
+            <span>✅ <strong th:text="${successMessage}">Operation successful!</strong></span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible" role="alert">
+            <span>⚠️ <strong th:text="${errorMessage}">An error occurred!</strong></span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h1>Employee Directory</h1>
+                <p class="subtitle">Search, filter, and manage staff records across all company departments.</p>
+            </div>
+            <div class="header-actions">
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/employees/new}" class="btn btn-primary">
+                    + Register New Employee
+                </a>
+            </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="filter-card">
+            <form th:action="@{/employees}" method="get" class="filter-form">
+                <div class="filter-col">
+                    <label for="keyword">Search Employee</label>
+                    <input type="text" id="keyword" name="keyword" th:value="${selectedKeyword}" 
+                           class="form-control" placeholder="Search by ID, Name or Job Title...">
+                </div>
+
+                <div class="filter-col">
+                    <label for="departmentId">Department</label>
+                    <select id="departmentId" name="departmentId" class="form-control">
+                        <option value="">All Departments</option>
+                        <option th:each="dept : ${departments}" 
+                                th:value="${dept.id}" 
+                                th:text="${dept.name}"
+                                th:selected="${dept.id == selectedDepartmentId}">Engineering</option>
+                    </select>
+                </div>
+
+                <div class="filter-col">
+                    <label for="status">Status</label>
+                    <select id="status" name="status" class="form-control">
+                        <option value="">All Statuses</option>
+                        <option value="ACTIVE" th:selected="${selectedStatus == 'ACTIVE'}">ACTIVE</option>
+                        <option value="PROBATION" th:selected="${selectedStatus == 'PROBATION'}">PROBATION</option>
+                        <option value="INACTIVE" th:selected="${selectedStatus == 'INACTIVE'}">INACTIVE</option>
+                        <option value="ON_LEAVE" th:selected="${selectedStatus == 'ON_LEAVE'}">ON_LEAVE</option>
+                    </select>
+                </div>
+
+                <div class="filter-col filter-actions">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a th:href="@{/employees}" class="btn btn-secondary">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Employee Table Card -->
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Emp ID</th>
+                                <th>Full Name</th>
+                                <th>Department</th>
+                                <th>Job Title</th>
+                                <th>Corporate Email</th>
+                                <th>Date Joined</th>
+                                <th>Salary</th>
+                                <th>Status</th>
+                                <th class="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="emp : ${employees}">
+                                <td>
+                                    <span class="badge-code" th:text="${emp.employeeCode}">EMP-1001</span>
+                                </td>
+                                <td>
+                                    <div class="user-meta">
+                                        <strong th:text="${emp.fullName}">Alexander Hayes</strong>
+                                        <small class="text-muted" th:text="${emp.phoneNumber}">+1 555-0100</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="dept-badge" th:text="${emp.department.name}">Engineering</span>
+                                </td>
+                                <td th:text="${emp.jobTitle}">Java Architect</td>
+                                <td>
+                                    <a th:href="'mailto:' + ${emp.email}" class="table-link" th:text="${emp.email}">alex@company.com</a>
+                                </td>
+                                <td th:text="${#temporals.format(emp.dateOfJoining, 'MMM dd, yyyy')}">Mar 15, 2022</td>
+                                <td class="salary-cell">
+                                    <span th:text="'$' + ${#numbers.formatDecimal(emp.salary, 1, 'COMMA', 2, 'POINT')}">$115,000.00</span>
+                                </td>
+                                <td>
+                                    <span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(emp.employmentStatus)}"
+                                          th:text="${emp.employmentStatus}">ACTIVE</span>
+                                </td>
+                                <td class="text-right action-buttons">
+                                    <!-- View Modal/Details Trigger -->
+                                    <a th:href="@{/employees/view/{id}(id=${emp.id})}" class="btn-action btn-view" title="View Profile">👁️ View</a>
+
+                                    <!-- Admin-only actions -->
+                                    <a sec:authorize="hasRole('ADMIN')" 
+                                       th:href="@{/employees/edit/{id}(id=${emp.id})}" 
+                                       class="btn-action btn-edit" title="Edit Employee">✏️ Edit</a>
+
+                                    <a sec:authorize="hasRole('ADMIN')" 
+                                       th:href="@{/employees/delete/{id}(id=${emp.id})}" 
+                                       class="btn-action btn-delete"
+                                       onclick="return confirm('Are you sure you want to permanently delete this employee record?');"
+                                       title="Delete Record">🗑️ Delete</a>
+
+                                    <!-- Read-only label for USER role -->
+                                    <span sec:authorize="!hasRole('ADMIN')" class="text-muted small">Read-Only</span>
+                                </td>
+                            </tr>
+
+                            <!-- Empty Search / Filter State -->
+                            <tr th:if="${#lists.isEmpty(employees)}">
+                                <td colspan="9">
+                                    <div class="empty-state">
+                                        <div class="empty-icon">🔍</div>
+                                        <h3>No Employees Found</h3>
+                                        <p>No employee records matched your filter criteria. Try adjusting keywords or resetting filters.</p>
+                                        <a th:href="@{/employees}" class="btn btn-secondary">Clear All Filters</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

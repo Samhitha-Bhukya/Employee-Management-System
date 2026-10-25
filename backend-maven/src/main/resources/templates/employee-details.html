@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Profile - Codec Technologies EMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="main-container max-w-4xl">
+        <div class="page-header">
+            <div>
+                <h1>Employee Dossier</h1>
+                <p class="subtitle">Detailed personnel record for <strong th:text="${employee.fullName}">Employee</strong></p>
+            </div>
+            <div class="header-actions">
+                <a th:href="@{/employees}" class="btn btn-secondary">&larr; Back to Directory</a>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/employees/edit/{id}(id=${employee.id})}" class="btn btn-primary">✏️ Edit Profile</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="profile-header">
+                    <div class="avatar-circle" th:text="${#strings.substring(employee.fullName, 0, 1)}">A</div>
+                    <div>
+                        <h2 th:text="${employee.fullName}">Alexander Hayes</h2>
+                        <p class="text-muted"><span th:text="${employee.jobTitle}">Senior Architect</span> &bull; <strong th:text="${employee.department.name}">Engineering</strong></p>
+                    </div>
+                    <div class="ml-auto">
+                        <span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(employee.employmentStatus)}"
+                              th:text="${employee.employmentStatus}">ACTIVE</span>
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <div class="profile-grid">
+                    <div class="profile-item">
+                        <label>Employee Code</label>
+                        <p class="font-mono" th:text="${employee.employeeCode}">EMP-1001</p>
+                    </div>
+                    <div class="profile-item">
+                        <label>Corporate Email</label>
+                        <p th:text="${employee.email}">alexander@company.com</p>
+                    </div>
+                    <div class="profile-item">
+                        <label>Contact Phone</label>
+                        <p th:text="${employee.phoneNumber}">+1 (555) 234-5678</p>
+                    </div>
+                    <div class="profile-item">
+                        <label>Date of Joining</label>
+                        <p th:text="${#temporals.format(employee.dateOfJoining, 'MMMM dd, yyyy')}">March 15, 2022</p>
+                    </div>
+                    <div class="profile-item">
+                        <label>Department Office</label>
+                        <p th:text="${employee.department.location != null ? employee.department.location : 'Main Campus'}">Tower 1, Floor 4</p>
+                    </div>
+                    <div class="profile-item">
+                        <label>Head of Department</label>
+                        <p th:text="${employee.department.headOfDepartment != null ? employee.department.headOfDepartment : 'N/A'}">Dr. Sarah Mitchell</p>
+                    </div>
+                    <div class="profile-item">
+                        <label>Annual Salary Compensation</label>
+                        <p class="font-bold text-primary" th:text="'$' + ${#numbers.formatDecimal(employee.salary, 1, 'COMMA', 2, 'POINT')}">$115,000.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "Employee Management System - Codec Technologies",
+  "description": "Production Spring Boot 3 & Thymeleaf Employee Management System for Codec Technologies internship, featuring RBAC, MySQL, JPA, and complete Maven project generator.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

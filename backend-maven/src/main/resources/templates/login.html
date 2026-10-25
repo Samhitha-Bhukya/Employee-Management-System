@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Codec Technologies EMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="login-body">
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="company-logo">CT</div>
+                <h2>Codec Technologies</h2>
+                <p class="subtitle">Employee Management System &bull; Java Internship</p>
+            </div>
+
+            <!-- Error Banner -->
+            <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                <span th:text="${errorMessage}">Invalid credentials.</span>
+            </div>
+
+            <!-- Logout Banner -->
+            <div th:if="${successMessage}" class="alert alert-success" role="alert">
+                <span th:text="${successMessage}">Logged out successfully.</span>
+            </div>
+
+            <form th:action="@{/login}" method="post" class="login-form">
+                <div class="form-group">
+                    <label for="username">Corporate Username</label>
+                    <input type="text" id="username" name="username" class="form-control" 
+                           placeholder="e.g. admin or user" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" 
+                           placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Sign In to Portal</button>
+            </form>
+
+            <div class="login-hint">
+                <p><strong>Demo Roles for Testing:</strong></p>
+                <div class="hint-badges">
+                    <div class="hint-item">
+                        <span class="badge-role">ADMIN</span>
+                        <code>admin</code> / <code>admin123</code> (Full CRUD)
+                    </div>
+                    <div class="hint-item">
+                        <span class="badge-role">USER</span>
+                        <code>user</code> / <code>user123</code> (Read-Only)
+                    </div>
+                </div>
+            </div>
+
+            <div class="login-footer">
+                <p>&copy; Codec Technologies. Academic Internship Project.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

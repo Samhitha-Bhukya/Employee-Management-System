@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Codec Technologies EMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <main class="main-container">
+        <!-- Header Banner -->
+        <div class="page-header">
+            <div>
+                <h1>Executive Dashboard</h1>
+                <p class="subtitle">Overview of organizational headcount, departments, and personnel records.</p>
+            </div>
+            <div class="header-actions">
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/employees/new}" class="btn btn-primary">
+                    + Register Employee
+                </a>
+                <a th:href="@{/employees}" class="btn btn-secondary">
+                    View All Staff
+                </a>
+            </div>
+        </div>
+
+        <!-- Metrics Overview Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon bg-blue-soft">👥</div>
+                <div class="stat-content">
+                    <span class="stat-label">Total Employees</span>
+                    <h2 class="stat-value" th:text="${totalEmployees}">0</h2>
+                    <span class="stat-desc">Active, probation, and leave records</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon bg-indigo-soft">🏢</div>
+                <div class="stat-content">
+                    <span class="stat-label">Total Departments</span>
+                    <h2 class="stat-value" th:text="${totalDepartments}">0</h2>
+                    <span class="stat-desc">Active operational divisions</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon bg-emerald-soft">🛡️</div>
+                <div class="stat-content">
+                    <span class="stat-label">Security Role</span>
+                    <h2 class="stat-value" sec:authorize="hasRole('ADMIN')">ADMIN</h2>
+                    <h2 class="stat-value" sec:authorize="hasRole('USER')">USER</h2>
+                    <span class="stat-desc" sec:authorize="hasRole('ADMIN')">Full CRUD privileges granted</span>
+                    <span class="stat-desc" sec:authorize="hasRole('USER')">Read &amp; Search access only</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon bg-amber-soft">⚡</div>
+                <div class="stat-content">
+                    <span class="stat-label">Persistence Engine</span>
+                    <h2 class="stat-value">MySQL 8</h2>
+                    <span class="stat-desc">Spring Data JPA / Hibernate ORM</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two Column Section: Department Breakdown & Recent Hires -->
+        <div class="dashboard-grid">
+            <!-- Left: Department Headcount -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Headcount by Department</h3>
+                    <a th:href="@{/departments}" class="card-link">Manage &rarr;</a>
+                </div>
+                <div class="card-body">
+                    <div class="dept-list">
+                        <div th:each="entry : ${departmentCounts}" class="dept-item">
+                            <div class="dept-info">
+                                <span class="dept-name" th:text="${entry.key}">Department Name</span>
+                                <span class="dept-count" th:text="${entry.value} + ' employees'">0 employees</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill"
+                                     th:style="'width: ' + (${totalEmployees} > 0 ? (${entry.value} * 100 / ${totalEmployees}) : 0) + '%'">
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${#maps.isEmpty(departmentCounts)}" class="empty-state">
+                            <p>No departments configured yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Recent Personnel Registrations -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recent Registrations</h3>
+                    <a th:href="@{/employees}" class="card-link">View All &rarr;</a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Department</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="emp : ${recentEmployees}">
+                                    <td><strong th:text="${emp.employeeCode}">EMP-1001</strong></td>
+                                    <td th:text="${emp.fullName}">Jane Doe</td>
+                                    <td th:text="${emp.department.name}">Engineering</td>
+                                    <td th:text="${emp.jobTitle}">Java Engineer</td>
+                                    <td>
+                                        <span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(emp.employmentStatus)}"
+                                              th:text="${emp.employmentStatus}">ACTIVE</span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(recentEmployees)}">
+                                    <td colspan="5" class="text-center">No employee records registered yet.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

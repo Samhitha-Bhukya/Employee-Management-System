@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head></head>
+<body>
+<nav th:fragment="navbar" class="navbar">
+    <div class="nav-container">
+        <a th:href="@{/dashboard}" class="brand-link">
+            <span class="brand-logo">CT</span>
+            <span class="brand-title">Codec Technologies <small>EMS</small></span>
+        </a>
+
+        <div class="nav-links">
+            <a th:href="@{/dashboard}" class="nav-item">
+                <i class="icon">📊</i> Dashboard
+            </a>
+            <a th:href="@{/employees}" class="nav-item">
+                <i class="icon">👥</i> Employees
+            </a>
+            <a th:href="@{/departments}" class="nav-item">
+                <i class="icon">🏢</i> Departments
+            </a>
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/employees/new}" class="nav-item btn-nav-add">
+                <i class="icon">➕</i> New Employee
+            </a>
+        </div>
+
+        <div class="nav-user">
+            <div class="user-badge">
+                <span class="user-name" sec:authentication="name">Username</span>
+                <span class="role-tag" sec:authorize="hasRole('ADMIN')">ADMIN</span>
+                <span class="role-tag role-user" sec:authorize="hasRole('USER')">USER</span>
+            </div>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <button type="submit" class="btn-logout" title="Sign out of system">Logout ↗</button>
+            </form>
+        </div>
+    </div>
+</nav>
+</body>
+</html>
